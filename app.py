@@ -241,36 +241,36 @@ def main():
                 context = st.session_state.generator.generate_relevant_pages(prompt, st.session_state.pdf_documents)
 
                 filtered_list = st.session_state.generator.filter_list(context)
-                
+                if(len(filtered_list)>0):
                 # Get related page documents
-                related_page_docs = st.session_state.generator.get_related_page_docs(st.session_state.pdf_documents, filtered_list)
-                
-                # Generate slide answer
-                slide_answer = st.session_state.generator.generate_slides_answer(prompt, related_page_docs)
-                
-                # Convert to JSON
-                json_answer = st.session_state.generator.convert_to_json(slide_answer) if slide_answer else None
+                    related_page_docs = st.session_state.generator.get_related_page_docs(st.session_state.pdf_documents, filtered_list)
+                    
+                    # Generate slide answer
+                    slide_answer = st.session_state.generator.generate_slides_answer(prompt, related_page_docs)
+                    
+                    # Convert to JSON
+                    json_answer = st.session_state.generator.convert_to_json(slide_answer) if slide_answer else None
                
                 # Format and display response
-                if json_answer and is_valid_response(json_answer):
-                    formatted_response = format_json_response(json_answer["sections"])
-                    st.markdown(formatted_response)
+                    if json_answer and is_valid_response(json_answer):
+                        formatted_response = format_json_response(json_answer["sections"])
+                        st.markdown(formatted_response)
 
-                    # Slide download option
-                    download_link = create_pptx_download_link(json_answer)
-                    if download_link:
-                        st.markdown(download_link, unsafe_allow_html=True)
+                        # Slide download option
+                        download_link = create_pptx_download_link(json_answer)
+                        if download_link:
+                            st.markdown(download_link, unsafe_allow_html=True)
                 else:
                     st.warning("No relevant information found in PDF. Searching web...")
                     web_answer = st.session_state.generator.generate_web_slides_answer(prompt)
-                    json_web_answer = st.session_state.generator.convert_to_json(web_answer) if slide_answer else None
+                    json_answer = st.session_state.generator.convert_to_json(web_answer) if web_answer else None
                    
-                    if json_web_answer and is_valid_response(json_web_answer):
-                         formatted_response = format_json_response(json_web_answer["sections"])
+                    if json_answer and is_valid_response(json_answer):
+                         formatted_response = format_json_response(json_answer["sections"])
                          st.markdown(formatted_response)
 
                         # Slide download option
-                         download_web_link = create_pptx_download_link(json_web_answer)
+                         download_web_link = create_pptx_download_link(json_answer)
                          if download_web_link:
                             st.markdown(download_link, unsafe_allow_html=True)
                     else:
@@ -280,7 +280,7 @@ def main():
         # Add assistant response to chat history
         st.session_state.chat_history.append({
             "role": "assistant", 
-            "content": formatted_response if ((json_answer and is_valid_response(json_answer))or(json_web_answer and is_valid_response(json_web_answer)) )  else "No relevant information found."
+            "content": formatted_response if ((json_answer and is_valid_response(json_answer)) )  else "No relevant information found."
         })
 
 if __name__ == "__main__":
